@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Carte Sci-Fi Robotika 3D - Motylinski et Foucauld</title>
+    <!-- Leaflet CSS for map visualization -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <style>
+        /* Fullscreen 3D container with sci-fi neon glow, transparency, and holographic effect */
+        #map {
+            height: 600px;
+            width: 100%;
+            perspective: 3000px; /* Extreme holographic 3D perspective */
+            transform-style: preserve-3d;
+            border: 3px solid rgba(0, 255, 255, 0.8); /* Brighter sci-fi holographic glow */
+            box-shadow: 0 50px 150px rgba(0, 255, 255, 1); /* Enhanced neon blue shadow */
+            border-radius: 30px;
+            transition: transform 0.8s ease, box-shadow 0.8s ease;
+            background: radial-gradient(circle, rgba(0, 0, 50, 0.8), rgba(0, 0, 100, 0.9)); /* Darker sci-fi background */
+            backdrop-filter: blur(10px); /* Subtle blurred holographic effect */
+            animation: rotateMap 20s infinite linear; /* Subtle rotation effect */
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Centered title */
+        h1 {
+            text-align: center;
+            color: #0ff;
+            text-shadow: 0 0 20px #0ff;
+            font-size: 28px;
+        }
+
+        /* Paragraph style under the title */
+        p {
+            text-align: center;
+            color: #fff;
+            font-size: 16px;
+            margin-bottom: 20px;
+        }
+
+        /* Buttons for toggling the lines */
+        .toggle-buttons {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .toggle-button {
+            background-color: #0ff;
+            border: none;
+            color: black;
+            padding: 10px 20px;
+            margin: 0 10px;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 5px;
+            box-shadow: 0 5px 15px rgba(0, 255, 255, 0.9); /* Brighter blue button glow */
+            transition: background-color 0.3s ease, transform 0.3s ease;
+        }
+
+        .toggle-button:hover {
+            background-color: #00bfbf;
+            transform: scale(1.1); /* Slight hover effect */
+        }
+
+        .toggle-button.active {
+            background-color: #007d7d;
+            color: white;
+        }
+
+        /* Legends and map styling */
+        .legend-left {
+            position: absolute;
+            left: 10px;
+            top: 10px;
+            max-width: 200px;
+            background: rgba(0, 0, 100, 0.8); /* Darker blue */
+            padding: 15px;
+            line-height: 1.5;
+            font-size: 16px;
+            box-shadow: 0 30px 60px rgba(0, 255, 255, 1); /* Brighter glow */
+            border-radius: 15px;
+            color: #0ff;
+            text-shadow: 0 0 20px #0ff;
+            z-index: 1000;
+        }
+
+        .legend-collaborations {
+            position: absolute;
+            left: 10px;
+            bottom: 30px;
+            max-width: 200px;
+            background: rgba(0, 0, 100, 0.8);
+            padding: 15px;
+            line-height: 1.5;
+            font-size: 16px;
+            box-shadow: 0 30px 60px rgba(0, 255, 255, 1);
+            border-radius: 15px;
+            color: #0ff;
+            text-shadow: 0 0 20px #0ff;
+            z-index: 1000;
+        }
+
+        .legend-right {
+            position: absolute;
+            right: 10px;
+            top: 10px;
+            max-width: 200px;
+            background: rgba(0, 0, 100, 0.8);
+            padding: 15px;
+            line-height: 1.5;
+            font-size: 16px;
+            box-shadow: 0 30px 60px rgba(0, 255, 255, 1);
+            border-radius: 15px;
+            color: #0ff;
+            text-shadow: 0 0 20px #0ff;
+            z-index: 1000;
+        }
+
+        /* Colors for legend items */
+        .legend-left i, .legend-collaborations i, .legend-right i {
+            display: inline-block;
+            width: 20px;
+            height: 10px;
+            margin-right: 5px;
+            box-shadow: 1px 1px 10px rgba(0, 255, 255, 0.8);
+        }
+
+        .blue { background: blue; }
+        .yellow { background: yellow; }
+        .green { background: green; }
+        .red { background: red; }
+        .purple { background: purple; }
+        .orange { background: orange; }
+        .dark-blue { background: darkblue; }
+        .dark-green { background: darkgreen; }
+
+        /* Ensures map and legend are responsive */
+        @media (max-width: 768px) {
+            .legend-left, .legend-collaborations, .legend-right {
+                font-size: 12px;
+                padding: 10px;
+            }
+
+            #map {
+                height: 500px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Profile Image of Motylinski and Foucauld -->
+    <img src="https://upload.wikimedia.org/wikipedia/commons/2/27/Adolphe_de_Calassanti_Motylinski.jpg" alt="Adolphe de Calassanti Motylinski" class="profile-photo">
+
+    <h1>Les Circulations de  Motylinski et Foucauld</h1>
+    <p>Explorez les contributions ethnographiques et linguistiques de Motylinski et Foucauld dans un environnement sci-fi immersif.</p>
+    
+    <!-- Toggle buttons to activate/deactivate lines in French -->
+    <div class="toggle-buttons">
+        <button id="toggleMotylinski" class="toggle-button active">Basculer Circulations de Motylinski</button>
+        <button id="toggleFoucauld" class="toggle-button active">Basculer Circulations de Foucauld</button>
+        <button id="toggleCollaboration" class="toggle-button active">Basculer Collaborations</button>
+    </div>
+
+    <div id="map"></div>
+
+    <!-- Left-side legend for circulation details -->
+    <div class="legend-left">
+        <h4>Détails des Circulations</h4>
+        <i class="blue"></i> <b>Circulations Professionnelles</b><br>
+        <i class="yellow"></i> <b>Circulations Académiques</b><br>
+        <i class="green"></i> <b>Circulations Linguistiques</b><br>
+        <i class="red"></i> <b>Circulations de Collaborations</b><br>
+        <i class="purple"></i> <b>Circulations de Voyage</b><br>
+        <i class="orange"></i> <b>Circulations Berbères en Europe</b><br>
+        <i class="dark-blue"></i> <b>Circulations Ethnographiques</b><br>
+        <i class="dark-green"></i> <b>Circulations Mondiales</b><br>
+    </div>
+
+    <!-- Bottom-left legend for collaboration and circulation -->
+    <div class="legend-collaborations">
+        <h4>Collaborations & Circulations</h4>
+        <i class="blue"></i> Collaborations entre Motylinski et Foucauld<br>
+        <i class="green"></i> Voyages de Motylinski<br>
+        <i class="yellow"></i> Expéditions de Foucauld<br>
+        <i class="red"></i> Circulations combinées en Afrique du Nord<br>
+    </div>
+
+    <!-- Top-right legend for text contributions -->
+    <div class="legend-right">
+        <h4>Textes Fondateurs et Publications</h4>
+        <i class="blue"></i> Les Berbères et le M'zab (1881)<br>
+        <i class="yellow"></i> Histoire ancienne des Berbères (1894)<br>
+        <i class="green"></i> Langues et dialectes des Berbères (1899)<br>
+        <i class="red"></i> Rites funéraires des Berbères (1905)<br>
+        <i class="purple"></i> Explorations archéologiques en Afrique du Nord (1910)<br>
+    </div>
+
+    <!-- Leaflet JS library -->
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script>
+        // Initialize the map
+        var map = L.map('map', {
+            zoomControl: false,
+            attributionControl: false,
+        }).setView([31.7917, -7.0926], 5); // Coordinates for Maroc
+
+        // Add OpenStreetMap tiles
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 18,
+        }).addTo(map);
+
+        // Define custom markers
+        function getColor(circulation) {
+            switch (circulation) {
+                case 'Circulations Professionnelles': return 'blue'; 
+                case 'Circulations Académiques': return 'yellow';
+                case 'Circulations Linguistiques': return 'green'; 
+                case 'Circulations de Collaborations': return 'red'; 
+                case 'Circulations de Voyage': return 'purple'; 
+                case 'Circulations Berbères en Europe': return 'orange'; 
+                case 'Circulations Ethnographiques': return 'darkblue'; 
+                case 'Circulations Mondiales': return 'darkgreen'; 
+                default: return 'black';
+            }
+        }
+
+        // Create marker with details matching the legend
+        function createCustomMarker(lat, lng, circulation, description) {
+            return L.circleMarker([lat, lng], {
+                color: getColor(circulation),
+                radius: 12
+            }).addTo(map).bindPopup(`<b>${circulation}</b><br>${description}`);
+        }
+
+        // Create markers for each circulation
+        var markers = {
+            circulationsProfessionnelles: createCustomMarker(32.3056, -9.2372, 'Circulations Professionnelles', 'Fonctionnalisme Colonial de Motylinski.<br>Établissement de contacts directs avec les sociétés berbères.'),
+            circulationsAcademiques: createCustomMarker(31.634, -8.011, 'Circulations Académiques', 'Réseaux Intellectuels et Transmission de la Connaissance.<br>Publication de recherches pionnières.'),
+            circulationsLinguistiques: createCustomMarker(36.7372, 3.0869, 'Circulations Linguistiques', 'Documentation des Langues et Dialectes Berbères.<br>Études détaillées sur la diversité linguistique berbère.'),
+            circulationsCollaborations: createCustomMarker(47.3220, 5.0415, 'Circulations de Collaborations', 'Partenariats Transnationaux et Co-production du Savoir.<br>Collaborations avec chercheurs européens.'),
+            circulationsVoyage: createCustomMarker(48.5734, 7.7521, 'Circulations de Voyage', 'Exploration Culturelle et Mobilité de Terrain.<br>Expéditions à travers l\'Afrique du Nord.')
+        };
+
+        // Circulation Lines for collaboration and voyages with pop-ups on click
+        var lines = {
+            collaborationsLine: L.polyline([
+                [47.3220, 5.0415], // Collaborations starting point
+                [31.634, -8.011]  // Collaborations end
+            ], { color: 'red' }).addTo(map).bindPopup('Collaborations en Afrique du Nord entre Motylinski et Foucauld.'),
+
+            voyageLine: L.polyline([
+                [48.5734, 7.7521],  // Voyage starting point
+                [36.7372, 3.0869]   // Voyage end
+            ], { color: 'purple' }).addTo(map).bindPopup('Voyages de Motylinski en Afrique du Nord.')
+        };
+
+        // Toggle Buttons for Circulations with detail markers and lines
+        document.getElementById('toggleMotylinski').addEventListener('click', function () {
+            if (map.hasLayer(markers.circulationsProfessionnelles)) {
+                map.removeLayer(markers.circulationsProfessionnelles);
+            } else {
+                map.addLayer(markers.circulationsProfessionnelles);
+            }
+        });
+
+        document.getElementById('toggleFoucauld').addEventListener('click', function () {
+            if (map.hasLayer(markers.circulationsAcademiques)) {
+                map.removeLayer(markers.circulationsAcademiques);
+            } else {
+                map.addLayer(markers.circulationsAcademiques);
+            }
+        });
+
+        document.getElementById('toggleCollaboration').addEventListener('click', function () {
+            if (map.hasLayer(lines.collaborationsLine)) {
+                map.removeLayer(lines.collaborationsLine);
+            } else {
+                map.addLayer(lines.collaborationsLine);
+            }
+        });
+    </script>
+</body>
+</html>
